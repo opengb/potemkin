@@ -10,8 +10,8 @@
 
 (defmacro import-fn
   "Given a function in another namespace, defines a function with the
-   same name in the current namespace.  Argument lists, doc-strings,
-   and original line-numbers are preserved."
+   same name in the current namespace.  Argument lists and doc-strings
+   are preserved."
   ([sym]
    `(import-fn ~sym nil))
   ([sym name]
@@ -28,14 +28,15 @@
 
      `(let [vr# (resolve '~sym)]
         (def ~(with-meta n {:protocol protocol}) (deref vr#))
-        (alter-meta! (var ~n) merge (dissoc (meta vr#) :name))
+        (alter-meta! (var ~n) merge (dissoc (meta vr#)
+                                            :name :line :column :file :ns))
         (link-vars vr# (var ~n))
         vr#))))
 
 (defmacro import-macro
   "Given a macro in another namespace, defines a macro with the same
-   name in the current namespace.  Argument lists, doc-strings, and
-   original line-numbers are preserved."
+   name in the current namespace.  Argument lists and doc-strings
+   are preserved."
   ([sym]
    `(import-macro ~sym nil))
   ([sym name]
@@ -50,7 +51,8 @@
                (str "Calling import-macro on a non-macro: " sym))))
      `(let [vr# (resolve '~sym)]
         (def ~n (deref vr#))
-        (alter-meta! (var ~n) merge (dissoc (meta vr#) :name))
+        (alter-meta! (var ~n) merge (dissoc (meta vr#)
+                                            :name :line :column :file :ns))
         (.setMacro (var ~n))
         (link-vars vr# (var ~n))
         vr#))))
@@ -70,7 +72,8 @@
        (throw (IllegalArgumentException. (str "Don't recognize " sym))))
      `(let [vr# (resolve '~sym)]
         (def ~n (deref vr#))
-        (alter-meta! (var ~n) merge (dissoc (meta vr#) :name))
+        (alter-meta! (var ~n) merge (dissoc (meta vr#)
+                                            :name :line :column :file :ns))
         (link-vars vr# (var ~n))
         vr#))))
 
